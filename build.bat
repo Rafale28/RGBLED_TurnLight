@@ -6,6 +6,6 @@ cd build
 cmake -G "NMake Makefiles" ..
 nmake
 
-copy /Y src\hello_world.uf2 ..\
+copy /Y src\RGB_LED_TURN_LIGHT.uf2 ..\
 
 cd ..\
