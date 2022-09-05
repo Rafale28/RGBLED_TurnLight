@@ -9,3 +9,4 @@ nmake
 copy /Y src\RGB_LED_TURN_LIGHT.uf2 ..\
 
 cd ..\
+pause
