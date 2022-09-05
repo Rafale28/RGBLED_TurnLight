@@ -1,19 +1,6 @@
-#include "ws2812.h"
+#include "seq_turn_signal.h"
 
-//static inline void WS2812::put_pixel(uint32_t pixel_grb) {
-void WS2812::put_pixel(uint32_t pixel_grb) {
-    pio_sm_put_blocking(pio0, 0, pixel_grb << 8u);
-}
-
-//static inline uint32_t WS2812::urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
-uint32_t WS2812::urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
-    return
-            ((uint32_t) (r) << 8) |
-            ((uint32_t) (g) << 16) |
-            (uint32_t) (b);
-}
-
-void RGB_PTN::pattern_snakes(uint len, uint t) {
+void TURN_SIGNAL::pattern_snakes(uint len, uint t) {
     for (uint i = 0; i < len; ++i) {
         uint x = (i + (t >> 1)) % 64;
         if (x < 10)
@@ -27,14 +14,14 @@ void RGB_PTN::pattern_snakes(uint len, uint t) {
     }
 }
 
-void RGB_PTN::pattern_random(uint len, uint t) {
+void TURN_SIGNAL::pattern_random(uint len, uint t) {
     if (t % 8)
         return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand());
 }
 
-void RGB_PTN::pattern_sparkle(uint len, uint t) {
+void TURN_SIGNAL::pattern_sparkle(uint len, uint t) {
     if (t % 8)
         return;
     for (int i = 0; i < len; ++i)
@@ -42,7 +29,7 @@ void RGB_PTN::pattern_sparkle(uint len, uint t) {
 }
 
 
-void RGB_PTN::pattern_greys(uint len, uint t) {
+void TURN_SIGNAL::pattern_greys(uint len, uint t) {
     int max = 100; // let's not draw too much current!
     t %= max;
     for (int i = 0; i < len; ++i) {

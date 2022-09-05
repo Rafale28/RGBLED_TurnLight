@@ -1,4 +1,4 @@
-set(target_name "RGB_LED_TURN_LIGHT")
+set(target_name "RGB_LED_TURN_SIGNAL")
 add_executable(${target_name})
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/../header)
@@ -10,7 +10,7 @@ pico_enable_stdio_uart(${target_name} 1)
 
 target_sources(${target_name} PRIVATE
     main.cpp
-    ws2812.cpp
+    seq_turn_signal.cpp
     )
 
 target_link_libraries(${target_name} PRIVATE

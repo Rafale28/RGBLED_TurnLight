@@ -2,7 +2,8 @@
 #include <cstdio>
 
 #include "pico/stdlib.h"
-#include "ws2812.h"
+//#include "ws2812.h"
+#include "seq_turn_signal.h"
 
 int main() {
     //set_sys_clock_48();
@@ -10,7 +11,7 @@ int main() {
     printf("WS2812 Smoke Test, using pin %d", WS2812_PIN);
 
     int t = 0;
-    RGB_PTN ptn;
+    TURN_SIGNAL ptn;
     while (1) {
         int pat = rand() % ptn.getPcount();
         int dir = (rand() >> 30) & 1 ? 1 : -1;
