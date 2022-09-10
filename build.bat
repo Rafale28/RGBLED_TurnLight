@@ -6,7 +6,7 @@ cd build
 cmake -G "NMake Makefiles" ..
 nmake
 
-copy /Y src\RGB_LED_TURN_LIGHT.uf2 ..\
+copy /Y src\RGB_LED_TURN_SIGNAL.uf2 ..\
 
 cd ..\
-pause
+cmd /k

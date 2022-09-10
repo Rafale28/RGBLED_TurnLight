@@ -2,7 +2,6 @@
 #include <cstdio>
 
 #include "pico/stdlib.h"
-//#include "ws2812.h"
 #include "seq_turn_signal.h"
 
 int main() {
@@ -12,17 +11,6 @@ int main() {
 
     int t = 0;
     TURN_SIGNAL ptn;
-    while (1) {
-        int pat = rand() % ptn.getPcount();
-        int dir = (rand() >> 30) & 1 ? 1 : -1;
-
-        puts(ptn.getName(pat));
-        puts(dir == 1 ? "(forward)" : "(backward)");
-
-        for (int i = 0; i < 1000; ++i) {
-            ptn.run(pat, t);
-            sleep_ms(10);
-            t += dir;
-        }
-    }
+    ptn.startTimer();
+    ptn.run(t);
 }
