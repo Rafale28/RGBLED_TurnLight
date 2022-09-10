@@ -7,10 +7,9 @@
 int main() {
     //set_sys_clock_48();
     stdio_init_all();
-    printf("WS2812 Smoke Test, using pin %d", WS2812_PIN);
+    TURN_SIGNAL turn_signal;
+    printf("RGB LED TURN LIGHT FOR YZF-R6 \n");
+    printf("FW VERSION : %s\n", FW_VERSION);
 
-    int t = 0;
-    TURN_SIGNAL ptn;
-    ptn.startTimer();
-    ptn.run(t);
+    turn_signal.run();
 }

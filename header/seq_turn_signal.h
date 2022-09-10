@@ -17,6 +17,8 @@
 
 #define INPUT_REG_SIZE 10 
 
+#define FW_VERSION "01.00.001.00"
+
 class TURN_SIGNAL : public WS2812 {
 public:
     enum LightingPattern {
@@ -24,12 +26,10 @@ public:
         RANDOM,
         SPARKLES,
         GRAYS,
-        RIGHT_WAVE,
-        RIGHT_SIN_P1,
-        RIGHT_GAMMA_P1,
-        RIGHT_SIN_P2,
-        LEFT_GAMMA_P1,
-        HAZARD,
+        //WAVE,
+        SIN_P1,
+        GAMMA_P1,
+        SIN_P2,
         DAY,
         DAY_TURN_ON,
         MAX_NUM
@@ -53,11 +53,12 @@ private:
     float sinCalc(int duty) {
         return sin( duty * M_PI / 180 );
     }
-    //typedef struct pattern_param_t {
-    //    bool right;
-    //    bool left;
-    //}
-    typedef void (TURN_SIGNAL::*pattern)(uint, uint);
+    typedef struct pattern_param_t {
+        int pattern;
+        bool right;
+        bool left;
+    }PATTERN_PARAM_T;
+    typedef void (TURN_SIGNAL::*pattern)(PATTERN_PARAM_T *);
     typedef struct pattern_t{
         pattern pat;
         const char *name;
@@ -67,16 +68,19 @@ private:
             {&TURN_SIGNAL::pattern_random,          "Random data"},
             {&TURN_SIGNAL::pattern_sparkle,         "Sparkles"},
             {&TURN_SIGNAL::pattern_greys,           "Greys"},
-            {&TURN_SIGNAL::pattern_rwave,           "Right Wave"},
-            {&TURN_SIGNAL::pattern_right_p1_sin,    "Right sinwave pattern 1"},
-            {&TURN_SIGNAL::pattern_right_p1_gamma,  "Right wave w gannma pattern 1"},
-            {&TURN_SIGNAL::pattern_right_p2_sin,    "Right sinwave pattern 2"},
-            {&TURN_SIGNAL::pattern_left_p1_gamma,   "Left wave w gannma pattern 1"},
-            {&TURN_SIGNAL::pattern_hazard,          "Hazard"},
+         //   {&TURN_SIGNAL::pattern_rwave,           "Right Wave"},
+            {&TURN_SIGNAL::pattern_p1_sin,          "sinwave pattern 1"},
+            {&TURN_SIGNAL::pattern_p1_gamma,        "wave w gannma pattern 1"},
+            {&TURN_SIGNAL::pattern_p2_sin,          "sinwave pattern 2"},
             {&TURN_SIGNAL::pattern_daylight,        "Day"},
             {&TURN_SIGNAL::pattern_daylight_turn_on,"Daylight turn on"}
     };
     uint8_t gamma(uint8_t, float );
+    void setPatternParam(PATTERN_PARAM_T *pp_p, int ptn, bool right, bool left) {
+        pp_p->pattern = ptn;
+        pp_p->right = right;
+        pp_p->left = left;
+    }
 
     //////////////////////////////////////////////////////////////
     //for Timer
@@ -151,50 +155,51 @@ private:
         gpio_set_dir(L_SIG_INPUT_PIN, GPIO_IN);
     }
 
-    int patternChekc(int p_val) {
-        if (param.right_en && param.left_en) {
-            return HAZARD;
-        } else if (param.right_en == true && param.left_en == false) {
-            return RIGHT_GAMMA_P1;
-        } else if (param.right_en == false && param.left_en == true) {
-            return LEFT_GAMMA_P1;
+    int patternChekc(PATTERN_PARAM_T *pp_p) {
+        if (param.right_en || param.left_en) {
+            setPatternParam(pp_p, GAMMA_P1, param.right_en, param.left_en);
         } else {
-            if (p_val != DAY && p_val != DAY_TURN_ON)
-                return DAY_TURN_ON;
+            if (pp_p->pattern != DAY && pp_p->pattern != DAY_TURN_ON)
+                setPatternParam(pp_p, DAY_TURN_ON, pp_p->right, pp_p->left);
             else 
-                return DAY;
+                setPatternParam(pp_p, DAY, true, true);
         }
     }
-public:
-    void pattern_snakes(uint len, uint t);
-    void pattern_random(uint len, uint t);
-    void pattern_sparkle(uint len, uint t);
-    void pattern_greys(uint len, uint t);
-    void pattern_rwave(uint len, uint t);
-
-    void pattern_right_p1_sin(uint len, uint t);
-    void pattern_right_p1_gamma(uint len, uint t);
-    void pattern_right_p2_sin(uint len, uint t);
-
-    void pattern_left_p1_gamma(uint len, uint t);
-
-    void pattern_hazard(uint len, uint t);
-    void pattern_daylight(uint len, uint t);
-    void pattern_daylight_turn_on(uint len, uint t);
 
     void startTimer() {
         paramInit();
         add_repeating_timer_ms(50, swInputTimerCallback, (void *)&param, &timer);
     }
-    void run(int t) {
-        int pattern = MAX_NUM;
+public:
+    void pattern_snakes(PATTERN_PARAM_T *);
+    void pattern_random(PATTERN_PARAM_T *);
+    void pattern_sparkle(PATTERN_PARAM_T *);
+    void pattern_greys(PATTERN_PARAM_T *);
+    void pattern_rwave(PATTERN_PARAM_T *);
+
+    void pattern_p1_sin(PATTERN_PARAM_T *);
+    void pattern_p1_gamma(PATTERN_PARAM_T *);
+    void pattern_p2_sin(PATTERN_PARAM_T *);
+
+    void pattern_daylight(PATTERN_PARAM_T *);
+    void pattern_daylight_turn_on(PATTERN_PARAM_T *);
+
+    void run() {
+        PATTERN_PARAM_T pp;
+
+        startTimer();
+        setPatternParam(&pp, DAY_TURN_ON, true, true);
+        (this->*pattern_table[pp.pattern].pat)(&pp);
+
         while(true) {
+#if SIGNAL_IN_DEBUG
             printf("ENABLE CHECK!! SWR:%s SWL:%s\n",
                 param.right_en?"True":"False",
                 param.left_en?"True":"False");
-            pattern = patternChekc(pattern);
-            puts(getName(pattern));
-            (this->*pattern_table[pattern].pat)(led_info.num_pixels, t);
+#endif
+            patternChekc(&pp);
+            showPatternParam(&pp);
+            (this->*pattern_table[pp.pattern].pat)(&pp);
         }
     }
     int getPcount() {
@@ -205,6 +210,12 @@ public:
     }
     uint16_t getPixels() {
         return led_info.num_pixels;
+    }
+    void showPatternParam(PATTERN_PARAM_T *pp_p) {
+            printf("Param, pattern:%s, R:%s, L:%s\n",
+                getName(pp_p->pattern),
+                pp_p->right?"True":"False",
+                pp_p->left?"True":"False");
     }
 
     TURN_SIGNAL(uint16_t np = 50) {
