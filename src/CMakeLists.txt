@@ -11,6 +11,8 @@ pico_enable_stdio_uart(${target_name} 1)
 target_sources(${target_name} PRIVATE
     main.cpp
     seq_turn_signal.cpp
+    seq_turn_signal_common.cpp
+    seq_turn_signal_pattern.cpp
     )
 
 target_link_libraries(${target_name} PRIVATE
