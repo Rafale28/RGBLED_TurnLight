@@ -19,7 +19,7 @@
 #define INPUT_REG_SIZE 10 
 
 class TURN_SIGNAL : public WS2812 {
-public:
+private:
     enum LightingPattern {
         SNAKES = 0,
         RANDOM,
@@ -31,9 +31,13 @@ public:
         SIN_P2,
         DAY,
         DAY_TURN_ON,
-        MAX_NUM
+        PATTERN_MAX_NUM
     };
-private:
+    enum Mode {
+        DEFAULT = 0,
+        DEBUG,
+        MODE_MAX_NUM
+    };
     //////////////////////////////////////////////////////////////
     //for LED
     //////////////////////////////////////////////////////////////
@@ -59,7 +63,7 @@ private:
         pattern pat;
         const char *name;
     } PATTERN_T;
-    PATTERN_T pattern_table[MAX_NUM] = {
+    PATTERN_T pattern_table[PATTERN_MAX_NUM] = {
             {&TURN_SIGNAL::pattern_snakes,          "Snakes!"},
             {&TURN_SIGNAL::pattern_random,          "Random data"},
             {&TURN_SIGNAL::pattern_sparkle,         "Sparkles"},
@@ -76,14 +80,12 @@ private:
     //////////////////////////////////////////////////////////////
     //for Timer
     //////////////////////////////////////////////////////////////
-    struct swInputTimer_t{
-        int a;
+    typedef struct swInputTimer_t{
         bool right_en;
         bool left_en;
-    };
-    swInputTimer_t param;
+    }SW_INPUT_STATE_T;
     struct repeating_timer timer;
-    void paramInit();
+    void initSwInputParam(SW_INPUT_STATE_T *);
     static const void regShift(bool *, bool);
     static bool regEnCheck(bool *); 
 
@@ -92,9 +94,9 @@ private:
     //////////////////////////////////////////////////////////////
     //for GPIO
     //////////////////////////////////////////////////////////////
-    void gpioInit();
-    int patternChekc(PATTERN_PARAM_T *);
-    void startTimer();
+    void initGpio();
+    int chekcPattern(PATTERN_PARAM_T *, SW_INPUT_STATE_T *);
+    void startTimer(SW_INPUT_STATE_T *);
 
     //////////////////////////////////////////////////////////////
     //pattern
@@ -127,7 +129,7 @@ public:
         led_info.num_pixels = np;
         led_info.right_pixels = np >> 1;
         led_info.left_pixels = np >> 1;
-        gpioInit();
+        initGpio();
     }
 };
 

@@ -2,19 +2,17 @@
 
 void TURN_SIGNAL::run() {
     PATTERN_PARAM_T pp;
+    SW_INPUT_STATE_T sis;
 
-    startTimer();
+    startTimer(&sis);
     setPatternParam(&pp, DAY_TURN_ON, true, true);
     (this->*pattern_table[pp.pattern].pat)(&pp);
 
     while(true) {
+        chekcPattern(&pp, &sis);
 #if SIGNAL_IN_DEBUG
-        //printf("ENABLE CHECK!! SWR:%s SWL:%s\n",
-        //    param.right_en?"True":"False",
-        //    param.left_en?"True":"False");
-  #endif
-        patternChekc(&pp);
         showPatternParam(&pp);
+#endif
         (this->*pattern_table[pp.pattern].pat)(&pp);
     }
 }

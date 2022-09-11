@@ -14,10 +14,9 @@ void TURN_SIGNAL::setPatternParam(PATTERN_PARAM_T *pp_p, int ptn, bool right, bo
 }
 
 
-void TURN_SIGNAL::paramInit() {
-    param.a = 114514;
-    param.right_en  = false;
-    param.left_en   = false;
+void TURN_SIGNAL::initSwInputParam(SW_INPUT_STATE_T *sis_p) {
+    sis_p->right_en  = false;
+    sis_p->left_en   = false;
 }
 
 const void TURN_SIGNAL::regShift(bool *r_in, bool s_in) {
@@ -35,7 +34,7 @@ bool TURN_SIGNAL::regEnCheck(bool *r) {
     return ret;
 }
 
-void TURN_SIGNAL::gpioInit(){
+void TURN_SIGNAL::initGpio(){
     gpio_init(DEBUG_LED_PIN);
     gpio_init(R_SIG_INPUT_PIN);
     gpio_init(L_SIG_INPUT_PIN);
@@ -45,9 +44,9 @@ void TURN_SIGNAL::gpioInit(){
     gpio_set_dir(L_SIG_INPUT_PIN, GPIO_IN);
 }
 
-int TURN_SIGNAL::patternChekc(PATTERN_PARAM_T *pp_p) {
-    if (param.right_en || param.left_en) {
-        setPatternParam(pp_p, GAMMA_P1, param.right_en, param.left_en);
+int TURN_SIGNAL::chekcPattern(PATTERN_PARAM_T *pp_p, SW_INPUT_STATE_T *sw) {
+    if (sw->right_en || sw->left_en) {
+        setPatternParam(pp_p, GAMMA_P1, sw->right_en, sw->left_en);
     } else {
         if (pp_p->pattern != DAY && pp_p->pattern != DAY_TURN_ON)
             setPatternParam(pp_p, DAY_TURN_ON, pp_p->right, pp_p->left);
@@ -56,9 +55,9 @@ int TURN_SIGNAL::patternChekc(PATTERN_PARAM_T *pp_p) {
     }
 }
 
-void TURN_SIGNAL::startTimer() {
-    paramInit();
-    add_repeating_timer_ms(50, swInputTimerCallback, (void *)&param, &timer);
+void TURN_SIGNAL::startTimer(SW_INPUT_STATE_T *sis_p) {
+    initSwInputParam(sis_p);
+    add_repeating_timer_ms(50, swInputTimerCallback, (void *)sis_p, &timer);
 }
 
 void TURN_SIGNAL::showPatternParam(PATTERN_PARAM_T *pp_p) {
