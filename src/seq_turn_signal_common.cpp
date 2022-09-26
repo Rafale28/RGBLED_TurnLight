@@ -78,3 +78,27 @@ const char *TURN_SIGNAL::getName(int ptn) {
 uint16_t TURN_SIGNAL::getPixels() {
     return led_info.num_pixels;
 }
+
+void TURN_SIGNAL::checkMode(int *mode) {
+    static char str[256] = {'\0'};
+    int c = getchar_timeout_us(0);
+    if (c >= 0) {
+        if (c != '\n') {
+            strcat(str, (char*)(&c));
+            //printf("str:%s\n",str);
+        } else {
+            for (int i = 0; i < MODE_MAX_NUM; i++) {
+                if (strcmp(str, modeStr[i]) == 0) {
+                    if (*mode != i) {
+                        printf("mode:%s->%s\n",
+                                modeStr[*mode],
+                                modeStr[i]);
+                        *mode = i;
+                    }
+                }
+            }
+            for (int i=0; i<256; i++)
+                str[i] = '\0';
+        }
+    }
+}

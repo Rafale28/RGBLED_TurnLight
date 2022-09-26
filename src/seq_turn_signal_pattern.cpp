@@ -2,7 +2,7 @@
 
 void TURN_SIGNAL::pattern_snakes(PATTERN_PARAM_T *pp_p) {
     int len = led_info.num_pixels;
-    int t = 0;
+    static int t = 0;
     for (uint i = 0; i < len; ++i) {
         uint x = (i + (t >> 1)) % 64;
         if (x < 10)
@@ -14,13 +14,11 @@ void TURN_SIGNAL::pattern_snakes(PATTERN_PARAM_T *pp_p) {
         else
             put_pixel(0);
     }
+    t++;
 }
 
 void TURN_SIGNAL::pattern_random(PATTERN_PARAM_T *pp_p) {
     int len = led_info.num_pixels;
-    int t = 0;
-    if (t % 8)
-        return;
     for (int i = 0; i < len; ++i)
         put_pixel(rand());
 }

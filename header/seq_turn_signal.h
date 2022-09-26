@@ -34,9 +34,22 @@ private:
         PATTERN_MAX_NUM
     };
     enum Mode {
-        DEFAULT = 0,
-        DEBUG,
+        MODE_DEFAULT = 0,
+        MODE_DEBUG,
         MODE_MAX_NUM
+    };
+    const char modeStr[MODE_MAX_NUM][32] = {
+        "default",
+        "debug"
+    };
+    enum DebugCommand {
+        DEBUG_EXIT = 0,
+        DEBUG_PATTERN_SET,
+        DEBUG_COMMAND_MAX_NUM
+    };
+    const char debug_command[DEBUG_COMMAND_MAX_NUM][32] = {
+        "exit",
+        "set"
     };
     //////////////////////////////////////////////////////////////
     //for LED
@@ -64,16 +77,16 @@ private:
         const char *name;
     } PATTERN_T;
     PATTERN_T pattern_table[PATTERN_MAX_NUM] = {
-            {&TURN_SIGNAL::pattern_snakes,          "Snakes!"},
-            {&TURN_SIGNAL::pattern_random,          "Random data"},
-            {&TURN_SIGNAL::pattern_sparkle,         "Sparkles"},
-            {&TURN_SIGNAL::pattern_greys,           "Greys"},
+            {&TURN_SIGNAL::pattern_snakes,          "snakes"},
+            {&TURN_SIGNAL::pattern_random,          "random"},
+            {&TURN_SIGNAL::pattern_sparkle,         "sparkles"},
+            {&TURN_SIGNAL::pattern_greys,           "greys"},
          //   {&TURN_SIGNAL::pattern_rwave,           "Right Wave"},
-            {&TURN_SIGNAL::pattern_p1_sin,          "sinwave pattern 1"},
-            {&TURN_SIGNAL::pattern_p1_gamma,        "wave w gannma pattern 1"},
-            {&TURN_SIGNAL::pattern_p2_sin,          "sinwave pattern 2"},
-            {&TURN_SIGNAL::pattern_daylight,        "Day"},
-            {&TURN_SIGNAL::pattern_daylight_turn_on,"Daylight turn on"}
+            {&TURN_SIGNAL::pattern_p1_sin,          "sin_p1"},
+            {&TURN_SIGNAL::pattern_p1_gamma,        "gannma_p1"},
+            {&TURN_SIGNAL::pattern_p2_sin,          "sin_2"},
+            {&TURN_SIGNAL::pattern_daylight,        "day"},
+            {&TURN_SIGNAL::pattern_daylight_turn_on,"day_turn_on"}
     };
     void setPatternParam(PATTERN_PARAM_T *, int, bool, bool);
 
@@ -122,6 +135,11 @@ private:
     int getPcount();
     const char *getName(int ptn);
     uint16_t getPixels();
+
+    void checkMode(int *);
+
+    int debug_mode(PATTERN_PARAM_T *, int *);
+    int inputCommand(PATTERN_PARAM_T *, int *);
 public:
     void run();
 
