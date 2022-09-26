@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "defines": [],
+            "includePath": [
+                "${workspaceRoot}/src/**",
+                "${workspaceRoot}/**",
+                "${workspaceRoot}/../pico-sdk/src/**",
+                "${workspaceRoot}/../pico-sdk/lib/**"
+            ]
+        }
+    ],
+    "version": 4
+}
